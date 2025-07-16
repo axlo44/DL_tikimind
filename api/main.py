@@ -40,14 +40,14 @@ async def load_model():
         logger.info("Chargement du modèle...")
         
         # Charger le modèle TensorFlow
-        model = tf.keras.models.load_model('models/abandon_prediction_model.keras')
+        model = tf.keras.models.load_model('api/models/abandon_prediction_model.keras')
         
         # Charger les encodeurs
-        with open('models/label_encoders.pkl', 'rb') as f:
+        with open('api/models/label_encoders.pkl', 'rb') as f:
             encoders = pickle.load(f)
         
         # Charger les métadonnées
-        with open('models/model_metadata.pkl', 'rb') as f:
+        with open('api/models/model_metadata.pkl', 'rb') as f:
             metadata = pickle.load(f)
         
         # Initialiser le service de prédiction
@@ -88,51 +88,19 @@ async def predict_abandon(request: PredictionRequest):
         raise HTTPException(status_code=500, detail="Modèle non chargé")
     
     try:
-        # Convertir la requête en dictionnaire
         session_data = {
             'user_id': request.session.user_id,
-            'actions': [action.dict() for action in request.session.actions]
+            'actions': [action.model_dump() for action in request.session.actions]
         }
         
         # Effectuer la prédiction
         result = prediction_service.predict_abandon(session_data)
-        
-        # Vérifier s'il y a eu une erreur
-        if 'error' in result:
-            raise HTTPException(status_code=400, detail=result['error'])
-        
+           
         return PredictionResponse(**result)
         
     except Exception as e:
         logger.error(f"Erreur lors de la prédiction: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/predict/batch")
-async def predict_batch(requests: list[PredictionRequest]):
-    """
-    Prédictions en lot pour plusieurs utilisateurs
-    """
-    if prediction_service is None:
-        raise HTTPException(status_code=500, detail="Modèle non chargé")
-    
-    results = []
-    for request in requests:
-        try:
-            session_data = {
-                'user_id': request.session.user_id,
-                'actions': [action.dict() for action in request.session.actions]
-            }
-            
-            result = prediction_service.predict_abandon(session_data)
-            results.append(result)
-            
-        except Exception as e:
-            results.append({
-                'user_id': request.session.user_id,
-                'error': str(e)
-            })
-    
-    return {"predictions": results}
 
 if __name__ == "__main__":
     import uvicorn
