@@ -8,7 +8,7 @@ COPY ./api /app
 
 # Installer les dépendances
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r api/requirements.txt
+    pip install --no-cache-dir -r requirements.txt
 
 # Exposer le port sur lequel l'application sera accessible
 EXPOSE 8000
