@@ -32,11 +32,11 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           source: dl-tikimind.tar
-          target: /home/${{ secrets.EC2_USER }}/deploy/
+          target: /home/ubuntu/deploy/
 
       # Étape 6 : Déployer sur EC2 via SSH
       - name: Deploy on EC2 via SSH
@@ -50,8 +50,8 @@ jobs:
             set -e
             cd /home/ubuntu/deploy
             docker load < dl-tikimind.tar
-            docker rm -f dl-tikimind || true
+            docker rm -f deeplearn-tikimind || true
             docker run -d \
-              --name dl-tikimind \
+              --name deeplearn-tikimind \
               -p 8000:8000 \
-              dl-tikimind
+              deeplearn-tikimind
