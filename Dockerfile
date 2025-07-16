@@ -4,7 +4,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copier les fichiers de votre projet dans le conteneur
-COPY . /app
+COPY ./api /app
 
 # Installer les dépendances
 RUN pip install --no-cache-dir --upgrade pip && \
