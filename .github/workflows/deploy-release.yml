@@ -9,25 +9,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Étape 1 : Vérifier le code
+      
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Étape 2 : Configurer Python
+     
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
-      # Étape 3 : Construire l'image Docker
+      
       - name: Build Docker image
         run: docker build -t dl-tikimind .
 
-      # Étape 4 : Sauvegarder l'image Docker dans un fichier tar
+     
       - name: Save Docker image to tar
         run: docker save dl-tikimind > dl-tikimind.tar
 
-      #  Nettoyer l'espace disque du serveur
+     
       - name: Clean up server space
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -49,7 +49,7 @@ jobs:
             # Vérifier l'espace disponible
             df -h
 
-      # Étape 5 : Transférer l'image Docker vers EC2
+
       - name: Upload Docker image to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -60,7 +60,6 @@ jobs:
           source: dl-tikimind.tar
           target: /home/ubuntu/deploy/
 
-      # Étape 6 : Déployer sur EC2 via SSH
       - name: Deploy on EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
