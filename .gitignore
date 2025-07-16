@@ -10,3 +10,4 @@ env/
 *.swp
 .vscode/
 .idea/
+DATA/KT3_merged.feather
