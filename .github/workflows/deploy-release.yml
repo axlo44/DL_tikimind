@@ -27,6 +27,28 @@ jobs:
       - name: Save Docker image to tar
         run: docker save dl-tikimind > dl-tikimind.tar
 
+      #  Nettoyer l'espace disque du serveur
+      - name: Clean up server space
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            # Supprimer les anciens conteneurs et images Docker
+            docker system prune -af
+            # Nettoyer les fichiers temporaires
+            sudo rm -rf /tmp/*
+            sudo rm -rf /home/ubuntu/deploy/*.tar
+            # Nettoyer les logs
+            sudo journalctl --vacuum-size=50M
+            # Nettoyer les paquets
+            sudo apt-get autoremove -y
+            sudo apt-get clean
+            # Vérifier l'espace disponible
+            df -h
+
       # Étape 5 : Transférer l'image Docker vers EC2
       - name: Upload Docker image to EC2
         uses: appleboy/scp-action@v0.1.7
